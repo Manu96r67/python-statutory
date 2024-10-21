@@ -18,6 +18,7 @@ class Compliance(db.Model):
     Compliance_Details = db.Column(db.String(500), nullable=False)
     Name_of_Statutory = db.Column(db.String(100), nullable=False)
     Frequency = db.Column(db.String(50), nullable=False)
+    Document_Reference_Number=db.Column(db.String(50), nullable=False)
     Valid_From = db.Column(db.String(20), nullable=False)
     Valid_Upto = db.Column(db.String(20), nullable=False)
     Remarks = db.Column(db.String(500))
@@ -74,6 +75,7 @@ def index():
                 func.lower(Compliance.Compliance_Details).like(search),
                 func.lower(Compliance.Name_of_Statutory).like(search),
                 func.lower(Compliance.Frequency).like(search),
+                func.lower(Compliance.Document_Reference_Number).like(search),
                 func.lower(Compliance.Valid_From).like(search),
                 func.lower(Compliance.Valid_Upto).like(search),
                 func.lower(Compliance.Remarks).like(search)
@@ -105,6 +107,7 @@ def add_compliance():
         Compliance_Details=request.form['Compliance_Details'],
         Name_of_Statutory=request.form['Name_of_Statutory'],
         Frequency=request.form['Frequency'],
+        Document_Reference_Number=request.form['Document_Reference_Number'],
         Valid_From=request.form['Valid_From'],
         Valid_Upto=request.form['Valid_Upto'],
         Remarks=request.form['Remarks']
@@ -122,6 +125,7 @@ def edit_compliance(id):
     compliance.Compliance_Details = request.form['Compliance_Details']
     compliance.Name_of_Statutory = request.form['Name_of_Statutory']
     compliance.Frequency = request.form['Frequency']
+    compliance.Document_Reference_Number=request.form['Document_Reference_Number']
     compliance.Valid_From = request.form['Valid_From']
     compliance.Valid_Upto = request.form['Valid_Upto']
     compliance.Remarks = request.form['Remarks']

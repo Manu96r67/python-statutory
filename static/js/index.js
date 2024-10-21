@@ -1,8 +1,9 @@
 // edit and delete functions
-function openEditComplianceModal(id, complianceDetails, nameOfStatutory, frequency, validFrom, validUpto, remarks) {
+function openEditComplianceModal(id, complianceDetails, nameOfStatutory, frequency,DocumentReferenceNumber, validFrom, validUpto, remarks) {
     document.getElementById('editComplianceDetails').value = complianceDetails;
     document.getElementById('editNameOfStatutory').value = nameOfStatutory;
     document.getElementById('editFrequency').value = frequency;
+    document.getElementById('editDocument_Reference_Number').value=DocumentReferenceNumber
     document.getElementById('editValidFrom').value = validFrom;
     document.getElementById('editValidUpto').value = validUpto;
     document.getElementById('editRemarks').value = remarks;
@@ -27,9 +28,10 @@ document.getElementById('editComplianceForm').addEventListener('submit', functio
               row.cells[0].innerText = document.getElementById('editComplianceDetails').value;
               row.cells[1].innerText = document.getElementById('editNameOfStatutory').value;
               row.cells[2].innerText = document.getElementById('editFrequency').value;
-              row.cells[3].innerText = document.getElementById('editValidFrom').value;
-              row.cells[4].innerText = document.getElementById('editValidUpto').value;
-              row.cells[5].innerText = document.getElementById('editRemarks').value;
+              row.cells[3].innerText = document.getElementById('editDocument_Reference_Number').value;
+              row.cells[4].innerText = document.getElementById('editValidFrom').value;
+              row.cells[5].innerText = document.getElementById('editValidUpto').value;
+              row.cells[6].innerText = document.getElementById('editRemarks').value;
 
               // Close the modal (if needed)
               $('#editComplianceModal').modal('hide');
