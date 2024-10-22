@@ -15,6 +15,11 @@ $(document).ready(function() {
             message: "Frequency should be Daily, Weekly, Monthly, Quarterly, or Yearly.",
             emptyMessage: "Please fill the Frequency."
         },
+        Document_Reference_Number: {
+            regex: /^[A-Za-z0-9/ -]{5,50}(\([A-Za-z0-9 -]+\))?$/,
+            message: "Document Reference Number should be 5-50 characters.",
+            emptyMessage: "Please fill the Document Reference Number."
+        },
         Valid_From: {
             regex: /^\d{4}-\d{2}-\d{2}$/,
             message: "Please enter a valid date in YYYY-MM-DD format.",
