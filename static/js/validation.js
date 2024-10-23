@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    
     const validationRules = {
         Compliance_Details: {
             regex: /^[a-zA-Z0-9\s]{5,100}$/,
@@ -11,9 +12,9 @@ $(document).ready(function() {
             emptyMessage: "Please fill the Name of Statutory."
         },
         Frequency: {
-            regex: /^(Daily|Weekly|Monthly|Quarterly|Yearly)$/i,
-            message: "Frequency should be Daily, Weekly, Monthly, Quarterly, or Yearly.",
-            emptyMessage: "Please fill the Frequency."
+            required: true,
+            message: "Please select a Frequency.",
+            emptyMessage: "Please select a Frequency."
         },
         Document_Reference_Number: {
             regex: /^[A-Za-z0-9/ -]{5,50}(\([A-Za-z0-9 -]+\))?$/,
@@ -23,12 +24,14 @@ $(document).ready(function() {
         Valid_From: {
             regex: /^\d{4}-\d{2}-\d{2}$/,
             message: "Please enter a valid date in YYYY-MM-DD format.",
-            emptyMessage: "Please fill the Valid From date."
+            emptyMessage: "Please fill the Valid From date.",
+            minDate: new Date().toISOString().split('T')[0] // Today's date
         },
         Valid_Upto: {
             regex: /^\d{4}-\d{2}-\d{2}$/,
             message: "Please enter a valid date in YYYY-MM-DD format.",
-            emptyMessage: "Please fill the Valid Upto date."
+            emptyMessage: "Please fill the Valid Upto date.",
+            validateDate: true
         },
         Remarks: {
             regex: /^[\s\S]{10,500}$/,
@@ -43,10 +46,56 @@ $(document).ready(function() {
         const rule = validationRules[name];
         const errorElement = $(`#${prefix}${name}_error`);
 
+        // Special handling for Frequency
+        if (name === 'Frequency') {
+            if (!value) {
+                errorElement.text(rule.emptyMessage);
+                return false;
+            } else {
+                errorElement.text('');
+                return true;
+            }
+        }
+
+        // Date validation
+        if (name === 'Valid_From') {
+            if (value === '') {
+                errorElement.text(rule.emptyMessage);
+                return false;
+            }
+            
+            const selectedDate = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (selectedDate < today) {
+                errorElement.text("Valid From date cannot be earlier than today.");
+                return false;
+            }
+        }
+
+        if (name === 'Valid_Upto') {
+            if (value === '') {
+                errorElement.text(rule.emptyMessage);
+                return false;
+            }
+
+            // Get the correct Valid_From field based on the form
+            const formId = field.closest('form').attr('id');
+            const fromDate = new Date($(`#${formId} [name="Valid_From"]`).val());
+            const toDate = new Date(value);
+
+            if (toDate < fromDate) {
+                errorElement.text("Valid Upto date cannot be earlier than Valid From date.");
+                return false;
+            }
+        }
+
+        // Regular validation for other fields
         if (value === '') {
             errorElement.text(rule.emptyMessage);
             return false;
-        } else if (rule && !rule.regex.test(value)) {
+        } else if (rule && rule.regex && !rule.regex.test(value)) {
             errorElement.text(rule.message);
             return false;
         } else {
@@ -55,9 +104,21 @@ $(document).ready(function() {
         }
     }
 
+    function updateDateMinimums(formId) {
+        const today = new Date().toISOString().split('T')[0];
+        $(`#${formId} [name="Valid_From"]`).attr('min', today);
+        
+        const fromDate = $(`#${formId} [name="Valid_From"]`).val();
+        if (fromDate) {
+            $(`#${formId} [name="Valid_Upto"]`).attr('min', fromDate);
+        } else {
+            $(`#${formId} [name="Valid_Upto"]`).attr('min', today);
+        }
+    }
+
     function validateAllFields(formId, prefix = '') {
         let isValid = true;
-        $(`#${formId} input, #${formId} textarea`).each(function() {
+        $(`#${formId} input, #${formId} textarea, #${formId} select`).each(function() {
             if (!validateField($(this), prefix)) {
                 isValid = false;
             }
@@ -66,6 +127,30 @@ $(document).ready(function() {
     }
 
     function attachValidation(formId, prefix = '') {
+        // Set initial date minimums
+        updateDateMinimums(formId);
+
+        // Add change event listener for Valid_From date
+        $(`#${formId} [name="Valid_From"]`).on('change', function() {
+            const fromDate = $(this).val();
+            if (fromDate) {
+                $(`#${formId} [name="Valid_Upto"]`).attr('min', fromDate);
+            }
+            validateField($(this), prefix);
+            // Revalidate Valid_Upto when Valid_From changes
+            validateField($(`#${formId} [name="Valid_Upto"]`), prefix);
+        });
+
+        // Add change event listener for Valid_Upto date
+        $(`#${formId} [name="Valid_Upto"]`).on('change', function() {
+            validateField($(this), prefix);
+        });
+
+        // Existing validation
+        $(`#${formId} select`).on('change', function() {
+            validateField($(this), prefix);
+        });
+
         $(`#${formId} input, #${formId} textarea`).on('input', function() {
             validateField($(this), prefix);
         });
@@ -77,6 +162,7 @@ $(document).ready(function() {
             }
         });
     }
+    
 
     // Attach validation to both forms
     attachValidation('complianceForm');

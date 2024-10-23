@@ -42,6 +42,7 @@ document.getElementById('editComplianceForm').addEventListener('submit', functio
       }).catch(error => console.error('Error:', error));
 });
 function prepareDelete(index) {
+    debugger;
     // Set the form action for delete
     document.getElementById('deleteComplianceForm').action = "/delete_compliance/" + index;
 }

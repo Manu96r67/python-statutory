@@ -23,6 +23,10 @@ class Compliance(db.Model):
     Valid_Upto = db.Column(db.String(20), nullable=False)
     Remarks = db.Column(db.String(500))
 
+class Frequency(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    frequency_name = db.Column(db.String(50), nullable=False, unique=True)
+
 categories = {
     'Electrical System': ['Electrical System', 'Transformer', 'Diesel Generator', 'Panels'],
     'Mechanical System': ['Booster pumps', 'Plumbing system'],
@@ -49,6 +53,17 @@ options = {
         'CCTV': ['Surveillance Cameras', 'DVR/NVR'],
         'Intercom systems': ['Audio Intercom', 'Video Intercom']
     }
+
+def populate_frequency():
+    frequencies = ['One Time', 'Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly']
+    for freq in frequencies:
+        if not Frequency.query.filter_by(frequency_name=freq).first():
+            db.session.add(Frequency(frequency_name=freq))
+    db.session.commit()
+
+# Run this function in your shell to populate the table
+
+
 
 # Function to get unique statutory names for filtering
 def get_unique_statutory_names():
@@ -89,7 +104,7 @@ def index():
 
     unique_statutory_names = get_unique_statutory_names()
     total_pages = (total_entries + per_page - 1) // per_page
-
+    frequencies = Frequency.query.all()
     return render_template('index.html', 
                            compliances=paginated_compliances, 
                            statutory_names=unique_statutory_names,
@@ -97,9 +112,15 @@ def index():
                            page=page, 
                            total_pages=total_pages,
                            search_query=search_query, 
-                           statutory_filter=statutory_filter)
+                           statutory_filter=statutory_filter,
+                           frequencies=frequencies
+                           )
 
 # Add the complience
+# @app.route('/compliance_form')
+# def compliance_form():
+#     frequencies = Frequency.query.all()
+#     return render_template('index.html', frequencies=frequencies)
 
 @app.route('/add_compliance', methods=['POST'])
 def add_compliance():
